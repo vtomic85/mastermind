@@ -34,6 +34,13 @@ class _MyHomePageState extends State<MyHomePage> {
   static const int _CORRECT_VALUE = 1;
   static const int _WRONG_VALUE = 0;
 
+  static int _gamesTotal = 0;
+  static int _gamesWon = 0;
+  static int _gamesLost = 0;
+  static List<int> _winningMoves = List.generate(6, (index) {
+    return 0;
+  });
+
   List<int> _actualValues = initializeActualValues();
   List<List<int>> _guessedValues = initializeGuessedValues();
   List<List<int>> _results = initializeGuessedValues();
@@ -43,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _wrongPlaces = 0;
   bool _gameEndSuccess = false;
   bool _gameEndFail = false;
+  bool _showStatistics = false;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text('Mastermind'),
       ),
       body: Center(
-        child: _buildGameScreen(),
+        child: _showStatistics ? _buildStatisticsScreen() : _buildGameScreen(),
       ),
     );
   }
@@ -61,7 +69,15 @@ class _MyHomePageState extends State<MyHomePage> {
     var gameOverPanelContent = <Widget>[];
     gameOverPanelContent.add(_buildGameOverText());
     gameOverPanelContent.add(_buildGameOverCorrectCombination());
-    gameOverPanelContent.add(_buildGameOverRestartButton());
+    gameOverPanelContent.add(
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          _buildGameOverRestartButton(),
+          _buildShowStatisticsButton(true)
+        ],
+      ),
+    );
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: gameOverPanelContent,
@@ -70,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Text _buildGameOverText() {
     return Text(
-      _gameEndSuccess ? "YOU WON!" : "YOU LOST!",
+      _gameEndSuccess ? 'YOU WON!' : 'YOU LOST!',
       style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
     );
   }
@@ -100,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return RaisedButton(
       color: Colors.blueGrey,
       child: Text(
-        "NEW GAME",
+        'NEW GAME',
         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
       ),
       onPressed: () {
@@ -114,8 +130,92 @@ class _MyHomePageState extends State<MyHomePage> {
           _wrongPlaces = 0;
           _gameEndSuccess = false;
           _gameEndFail = false;
+          _showStatistics = false;
         });
       },
+    );
+  }
+
+  RaisedButton _buildShowStatisticsButton(bool show) {
+    return RaisedButton(
+      color: Colors.blueGrey,
+      child: Text(
+        show ? 'STATISTICS' : 'BACK',
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
+      onPressed: () {
+        setState(() {
+          _showStatistics = show;
+        });
+      },
+    );
+  }
+
+  Column _buildStatisticsScreen() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          'STATISTICS',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                /* LABELS */
+                children: <Widget>[
+                  Text('TOTAL GAMES'),
+                  SizedBox(height: 10.0),
+                  Text('GAMES WON'),
+                  Text('PERCENTAGE WON'),
+                  SizedBox(height: 10.0),
+                  Text('GAMES LOST'),
+                  Text('PERCENTAGE LOST'),
+                  SizedBox(height: 10.0),
+                  Text('WINS IN 1st MOVE'),
+                  Text('WINS IN 2nd MOVE'),
+                  Text('WINS IN 3rd MOVE'),
+                  Text('WINS IN 4th MOVE'),
+                  Text('WINS IN 5th MOVE'),
+                  Text('WINS IN 6th MOVE'),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                /* VALUES */
+                children: <Widget>[
+                  Text('$_gamesTotal'),
+                  SizedBox(height: 10.0),
+                  Text('$_gamesWon'),
+                  Text((_gamesWon > 0
+                          ? '${(_gamesWon / _gamesTotal * 100)}'
+                          : '0.00') +
+                      '%'),
+                  SizedBox(height: 10.0),
+                  Text('$_gamesLost'),
+                  Text((_gamesLost > 0
+                          ? '${(_gamesLost / _gamesTotal * 100)}'
+                          : '0.00') +
+                      '%'),
+                  SizedBox(height: 10.0),
+                  Text('${_winningMoves[0]}'),
+                  Text('${_winningMoves[1]}'),
+                  Text('${_winningMoves[2]}'),
+                  Text('${_winningMoves[3]}'),
+                  Text('${_winningMoves[4]}'),
+                  Text('${_winningMoves[5]}'),
+                ],
+              ),
+            ],
+          ),
+        ),
+        _buildShowStatisticsButton(false),
+      ],
     );
   }
 
@@ -138,8 +238,9 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           ],
         ),
-//        _buildActualCombinationRow(),
-        (_gameEndFail || _gameEndSuccess) ? _buildGameOverPanel() : Container(),
+        (_gameEndFail || _gameEndSuccess)
+            ? _buildGameOverPanel()
+            : _buildShowStatisticsButton(true),
       ],
     );
   }
@@ -318,8 +419,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
           if (_correctPlaces == _NUMBER_OF_SYMBOLS_IN_COMBINATION) {
             _gameEndSuccess = true;
+            _gamesTotal++;
+            _gamesWon++;
+            _winningMoves[_rowCounter - 1]++;
           } else if (_rowCounter == _NUMBER_OF_ROWS) {
             _gameEndFail = true;
+            _gamesTotal++;
+            _gamesLost++;
           }
         });
       };
