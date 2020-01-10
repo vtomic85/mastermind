@@ -1,4 +1,4 @@
-package com.zuhlke.mastermind
+package com.vlto.mastermind
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

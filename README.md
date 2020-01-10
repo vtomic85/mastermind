@@ -1,6 +1,6 @@
 # mastermind
 
-Mastermind App
+Mastermind Light
 
 ## About
 

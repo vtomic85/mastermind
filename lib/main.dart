@@ -8,7 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mastermind',
+      title: 'Mastermind Light',
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
-        title: Text('Mastermind'),
+        title: Text('Mastermind Light'),
       ),
       body: Center(
         child: _buildGameScreen(),
