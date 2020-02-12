@@ -59,8 +59,15 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text('Mastermind Light'),
       ),
-      body: Center(
-        child: _buildGameScreen(),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (builder, constraints) {
+            double maxWidth = constraints.maxWidth;
+            return Center(
+              child: _buildGameScreen(maxWidth),
+            );
+          },
+        ),
       ),
     );
   }
@@ -134,11 +141,11 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Column _buildGameScreen() {
+  Column _buildGameScreen(double maxWidth) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
-        _buildPossibleColorsRow(),
+        _buildPossibleColorsRow(maxWidth),
         _buildCommandButtonsRow(),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -202,28 +209,25 @@ class _MyHomePageState extends State<MyHomePage> {
     return leftColumnRows;
   }
 
-  Row _buildPossibleColorsRow() {
+  Row _buildPossibleColorsRow(double maxWidth) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        _buildPossibleColorsButtons(),
+        _buildPossibleColorsButtons(maxWidth),
       ],
     );
   }
 
   // Build buttons for all possible symbols
-  Row _buildPossibleColorsButtons() {
+  Flex _buildPossibleColorsButtons(double maxWidth) {
     var possibleColors = <Widget>[];
     for (int i = 0; i < _NUMBER_OF_POSSIBLE_VALUES; i++) {
       possibleColors.add(SizedBox(
-        width: _POSSIBLE_SYMBOL_DIMENSION,
-        height: _POSSIBLE_SYMBOL_DIMENSION,
+        width: maxWidth / 7,
+        height: maxWidth / 7,
         child: RaisedButton(
           elevation: 10.0,
           animationDuration: Duration(milliseconds: 100),
-          highlightElevation: 30.0,
-          highlightColor: Colors.blueGrey,
-          padding: EdgeInsets.all(2),
           onPressed: () {
             setState(() {
               if (_symbolCounter < _NUMBER_OF_SYMBOLS_IN_COMBINATION) {
@@ -232,12 +236,13 @@ class _MyHomePageState extends State<MyHomePage> {
             });
           },
           child: Image.asset('images/value$i.png',
-              height: _POSSIBLE_SYMBOL_DIMENSION,
-              width: _POSSIBLE_SYMBOL_DIMENSION),
+              height: maxWidth / 4, width: maxWidth / 4),
         ),
       ));
     }
-    return Row(
+    return Flex(
+      direction: Axis.horizontal,
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: possibleColors,
     );
