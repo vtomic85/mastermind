@@ -30,7 +30,6 @@ class _MyHomePageState extends State<MyHomePage> {
   static const int _NUMBER_OF_POSSIBLE_VALUES = 6;
   static const int _NUMBER_OF_SYMBOLS_IN_COMBINATION = 4;
   static const double _SYMBOL_DIMENSION = 40.0;
-  static const double _POSSIBLE_SYMBOL_DIMENSION = 60.0;
   static const int _INITIAL_VALUE = -1;
   static const int _CORRECT_VALUE = 1;
   static const int _WRONG_VALUE = 0;
