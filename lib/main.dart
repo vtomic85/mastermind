@@ -33,6 +33,14 @@ class _MyHomePageState extends State<MyHomePage> {
   static const int _INITIAL_VALUE = -1;
   static const int _CORRECT_VALUE = 1;
   static const int _WRONG_VALUE = 0;
+  static const List<Color> COLORS = [
+    Colors.purple,
+    Colors.green,
+    Colors.blue,
+    Colors.red,
+    Colors.orange,
+    Colors.yellow
+  ];
 
   static int _gamesTotal = 0;
   static int _gamesWon = 0;
@@ -53,19 +61,35 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade200,
-      appBar: AppBar(
-        title: Text('Mastermind Light'),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          stops: [0.1, 0.3, 0.5, 0.7, 0.9],
+          colors: [
+            Colors.blueGrey[200],
+            Colors.blueGrey[100],
+            Colors.blueGrey[50],
+            Colors.blueGrey[100],
+            Colors.blueGrey[200],
+          ],
+        ),
       ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (builder, constraints) {
-            double maxWidth = constraints.maxWidth;
-            return Center(
-              child: _buildGameScreen(maxWidth),
-            );
-          },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: Text('Mastermind Light'),
+        ),
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (builder, constraints) {
+              double maxWidth = constraints.maxWidth;
+              return Center(
+                child: _buildGameScreen(maxWidth),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -103,10 +127,16 @@ class _MyHomePageState extends State<MyHomePage> {
         SizedBox(
           width: _SYMBOL_DIMENSION,
           height: _SYMBOL_DIMENSION,
-          child: Image.asset(
-            'images/value${_actualValues[i]}.png',
-            height: _SYMBOL_DIMENSION,
-            width: _SYMBOL_DIMENSION,
+          child: Container(
+            decoration: BoxDecoration(
+              color: COLORS[_actualValues[i]],
+              border: Border.all(
+                color: Colors.white,
+              ),
+              borderRadius: BorderRadius.all(
+                  Radius.circular(10.0) //         <--- border radius here
+                  ),
+            ),
           ),
         ),
       );
@@ -144,7 +174,12 @@ class _MyHomePageState extends State<MyHomePage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
-        _buildPossibleColorsRow(maxWidth),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: _buildPossibleColorsRow(),
+          ),
+        ),
         _buildCommandButtonsRow(),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -171,14 +206,21 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[],
       );
       for (int j = 0; j < _NUMBER_OF_SYMBOLS_IN_COMBINATION; j++) {
-        String imagePath = _guessedValues[i][j] == -1
-            ? 'emptyField.png'
-            : 'value${_guessedValues[i][j]}.png';
         leftColumnRows[i].children.add(
-              Image(
-                  image: AssetImage('images/' + imagePath),
-                  height: _SYMBOL_DIMENSION,
-                  width: _SYMBOL_DIMENSION),
+              SizedBox(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.white,
+                    ),
+                    color: _guessedValues[i][j] == _INITIAL_VALUE
+                        ? Colors.grey
+                        : COLORS[_guessedValues[i][j]],
+                  ),
+                ),
+                height: _SYMBOL_DIMENSION,
+                width: _SYMBOL_DIMENSION,
+              ),
             );
       }
     }
@@ -186,9 +228,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<Widget> _buildRightColumnContent() {
-    var leftColumnRows = new List<Row>(_NUMBER_OF_ROWS);
+    var rightColumnRows = new List<Row>(_NUMBER_OF_ROWS);
     for (int i = 0; i < _NUMBER_OF_ROWS; i++) {
-      leftColumnRows[i] = new Row(
+      rightColumnRows[i] = new Row(
         children: <Widget>[],
       );
       for (int j = 0; j < _NUMBER_OF_SYMBOLS_IN_COMBINATION; j++) {
@@ -197,53 +239,55 @@ class _MyHomePageState extends State<MyHomePage> {
             : _results[i][j] == _CORRECT_VALUE
                 ? 'goodGuess.png'
                 : 'badGuess.png';
-        leftColumnRows[i].children.add(
-              Image(
-                  image: AssetImage('images/' + imagePath),
-                  height: _SYMBOL_DIMENSION,
-                  width: _SYMBOL_DIMENSION),
+        rightColumnRows[i].children.add(
+              Container(
+                child: Image(
+                    image: AssetImage('images/' + imagePath),
+                    height: _SYMBOL_DIMENSION,
+                    width: _SYMBOL_DIMENSION),
+              ),
             );
       }
     }
-    return leftColumnRows;
+    return rightColumnRows;
   }
 
-  Row _buildPossibleColorsRow(double maxWidth) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        _buildPossibleColorsButtons(maxWidth),
-      ],
-    );
+  List<Widget> _buildPossibleColorsRow() {
+    return <Widget>[
+      _buildPossibleColorsButtons(0),
+      _buildPossibleColorsButtons(1),
+      _buildPossibleColorsButtons(2),
+      _buildPossibleColorsButtons(3),
+      _buildPossibleColorsButtons(4),
+      _buildPossibleColorsButtons(5),
+    ];
   }
 
   // Build buttons for all possible symbols
-  Flex _buildPossibleColorsButtons(double maxWidth) {
-    var possibleColors = <Widget>[];
-    for (int i = 0; i < _NUMBER_OF_POSSIBLE_VALUES; i++) {
-      possibleColors.add(SizedBox(
-        width: maxWidth / 7,
-        height: maxWidth / 7,
-        child: RaisedButton(
-          elevation: 10.0,
-          animationDuration: Duration(milliseconds: 100),
-          onPressed: () {
-            setState(() {
-              if (_symbolCounter < _NUMBER_OF_SYMBOLS_IN_COMBINATION) {
-                _guessedValues[_rowCounter][_symbolCounter++] = i;
-              }
-            });
-          },
-          child: Image.asset('images/value$i.png',
-              height: maxWidth / 4, width: maxWidth / 4),
+  Expanded _buildPossibleColorsButtons(int i) {
+    var fieldWidth = MediaQuery.of(context).size.width / 6;
+    return Expanded(
+      child: GestureDetector(
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.white,
+            ),
+            borderRadius: BorderRadius.all(
+                Radius.circular(10.0) //         <--- border radius here
+                ),
+            color: COLORS[i],
+          ),
+          height: fieldWidth,
         ),
-      ));
-    }
-    return Flex(
-      direction: Axis.horizontal,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: possibleColors,
+        onTap: () {
+          setState(() {
+            if (_symbolCounter < _NUMBER_OF_SYMBOLS_IN_COMBINATION) {
+              _guessedValues[_rowCounter][_symbolCounter++] = i;
+            }
+          });
+        },
+      ),
     );
   }
 
@@ -261,6 +305,10 @@ class _MyHomePageState extends State<MyHomePage> {
     return RaisedButton(
       disabledColor: Colors.grey.shade400,
       color: Colors.green,
+      shape: RoundedRectangleBorder(
+        borderRadius: new BorderRadius.circular(5.0),
+        side: BorderSide(color: Colors.grey),
+      ),
       child: Text(
         'OK',
         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -353,6 +401,10 @@ class _MyHomePageState extends State<MyHomePage> {
     return RaisedButton(
       disabledColor: Colors.grey.shade400,
       color: Colors.red,
+      shape: RoundedRectangleBorder(
+        borderRadius: new BorderRadius.circular(5.0),
+        side: BorderSide(color: Colors.grey),
+      ),
       child: Text(
         '<<',
         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
